@@ -741,3 +741,27 @@ if (laporan.daftarDitolak.length > 0) {
     console.log("Tidak ada transaksi yang ditolak.");
 }
 console.log("========================================");
+
+/*
+PERTANYAAN
+1. Kenapa `penjualanPerMenu` dibuat sebagai object, bukan array? Kenapa harus memakai bracket notation untuk mengisinya?
+    - penjualanPerMenu dibuat sebagai objek karena kita ingin menggunakan nama menu sebagai kunci (key) yang unik dan langsung 
+      terhubung dengan jumlah penjualannya. Kita harus memakai bracket notation karena nama menu berisi spasi dan dinamis 
+      (berubah-ubah sesuai data), sehingga tidak bisa diakses menggunakan titik (.).
+2. Apa beda `Object.keys` dan `Object.values`? Tunjuk hasilnya dari kodemu.
+    - Object.keys mengambil daftar nama kunci (nama menu) dari dalam objek, sedangkan Object.values mengambil daftar nilai angkanya 
+      (jumlah penjualan). Contoh hasilnya di console:
+        Object.keys: ["Kopi Susu", "Roti Bakar", ...]
+        Object.values: [3, 2, ...]
+3. Dari demo array method, mana yang mengubah array aslinya dan mana yang tidak? Bukti apa yang kamu lihat di console?
+    - Method slice dan includes / indexOf tidak mengubah array aslinya. Sebaliknya, method splice mengubah array aslinya. 
+      Bukti di console: setelah salinanKode.splice dijalankan, array salinanKode berkurang isinya, sedangkan array kodeLunas yang 
+      asli tetap memiliki jumlah data yang utuh.
+4. Kenapa `rataRata` harus diubah kembali menjadi angka setelah memakai `toFixed`? Apa yang terjadi jika tidak diubah?
+    - Karena method toFixed mengembalikan nilai berupa teks (string). Jika tidak diubah kembali menjadi angka menggunakan Number() 
+      atau Math.round(), hasil akhirnya akan berformat teks yang berisiko salah jika nanti dioperasikan secara matematika atau digabungkan.
+5. Apa hasil pengecekan jumlah kode pada nomor 4 di atas? Jelaskan kenapa hasilnya begitu.
+    - Hasil pengecekannya adalah true (sama). Alasannya karena variabel ringkasanKode dibentuk dengan menggabungkan seluruh kode transaksi 
+      lunas yang dipisahkan oleh ", ", sehingga ketika dipecah kembali menggunakan .split(", "), jumlah total potongan teksnya akan pas dengan 
+      jumlah transaksi yang berstatus lunas.
+*/
