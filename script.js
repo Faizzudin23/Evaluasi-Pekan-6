@@ -237,3 +237,27 @@ for (let i = 0; i < transaksiMentah.length; i++) {
 
 console.log("\n--- HASIL TRANSAKSI BERSIH ---");
 console.log(transaksiBersih);
+
+/*
+PERTANYAAN 
+1. Apa beda `parseInt`, `parseFloat`, dan `Number`? Kenapa `ubahKeAngka` harus menghapus titik terlebih dahulu? Apa hasil `parseInt("150.000")`?
+    - parseInt: Mengubah teks menjadi angka bulat (membuang angka di belakang koma, misal "12.5" jadi 12).
+    - parseFloat: Mengubah teks menjadi angka desimal (tetap mempertahankan koma/titik, misal "12.5" jadi 12.5).
+    - Number: Mengubah teks menjadi angka secara utuh (bisa bulat atau desimal).
+    - Kenapa harus menghapus titik? Karena JavaScript menganggap titik (.) sebagai pemisah desimal, bukan pemisah ribuan. Jika teksnya "150.000" tidak dibersihkan, JavaScript akan membacanya sebagai 150 saja.
+    - Hasil parseInt("150.000"): Adalah 150 (karena pembacaannya berhenti tepat saat menemui titik pertama).
+2. `toFixed` mengembalikan teks atau angka? Buktikan dengan `typeof`, lalu tunjukkan akibatnya jika hasil `toFixed` langsung dijumlahkan dengan angka.
+    - toFixed mengembalikan teks (string), bukan angka.
+    - Akibatnya jika langsung dijumlahkan: Karena berupa teks, JavaScript akan melakukan penggabungan teks (concatenation) alih-alih penjumlahan matematika. Contoh: "10.57" + 5 akan menghasilkan "10.575" bukannya 15.57.
+3. Apa beda `replace` dan `replaceAll`? Tunjuk satu tempat di kodemu yang memerlukan salah satunya.
+    - replace: Hanya mengganti kecocokan pertama yang ditemukan pada teks.
+    - replaceAll: Mengganti seluruh kecocokan yang ditemukan pada teks.
+    - Tempat di kode yang memerlukannya: Pada fungsi ubahKeAngka saat membersihkan titik ribuan (.replace(/\./g, "")). Kita memakai regex dengan flag global (/g) karena sebuah angka bisa punya lebih dari satu titik pemisah ribuan, sehingga replace biasa tidak cukup.
+4. Setelah kamu memanggil `kode.toUpperCase()`, kenapa isi variabel `kode` yang asli tidak berubah?
+    - Karena tipe data string di JavaScript bersifat immutable (tidak bisa diubah langsung). Method seperti toUpperCase() tidak mengubah teks aslinya, melainkan menciptakan dan mengembalikan salinan teks baru yang sudah berhuruf besar.
+5. Tunjuk satu function declaration, satu function expression, dan satu arrow function dari kodemu. Kenapa kamu memilih bentuk itu untuk masing-masing?
+    - Function Declaration (bersihkanSpasi): Dipilih karena bentuknya paling standar, mudah dibaca, dan bisa dipanggil dari baris mana saja berkat fitur hoisting.
+    - Function Expression (ubahKeAngka): Dipilih karena ingin memperlakukan fungsi sebagai nilai yang tersimpan rapi di dalam wadah variabel khusus.
+    - Arrow Function: (Meskipun di kode sebelumnya kita memakai Declaration/Expression, contoh penulisannya seperti (teks) => teks.trim()). Dipilih jika kita ingin membuat fungsi satu baris yang sangat singkat tanpa perlu menulis kata function dan return
+*/
+
