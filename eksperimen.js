@@ -168,3 +168,29 @@ for (let i = 0; i < daftarTruthyUnik.length; i++) {
     }
 }
 
+
+// BAGIAN 7.3 : JELASKAN
+/*
+PERTANYAAN 
+1. Pada Potongan A, kenapa `"10" + 5 * 2` hasilnya `"1010"`? Urutan apa yang dikerjakan JavaScript?
+    - Karena JavaScript mengikuti aturan prioritas operator (operator precedence). Perkalian dikerjakan terlebih dahulu (5 * 2 = 10), 
+      baru kemudian operasi penambahan +. Karena salah satu operandnya adalah teks ("10"), JavaScript melakukan penggabungan teks (concatenation), 
+      sehingga "10" + 10 menjadi "1010".
+2. Pada Potongan B, kenapa `potongan` dan `hapus` isinya sama, tetapi efeknya pada `angka` berbeda?
+    - Karena slice adalah method yang tidak merusak (hanya menyalin potongan data tanpa mengubah array aslinya), sedangkan splice adalah 
+      method yang merusak (memotong dan mengubah array aslinya). Keduanya kebetulan mengambil elemen dari indeks yang sama ([20, 30]), 
+      tetapi array angka kehilangan elemen tersebut akibat splice.
+3. Pada Potongan B, kenapa `console.log(cetak(4))` mencetak dua baris? Dari mana `undefined` berasal?
+    - Baris pertama (8) tercetak dari perintah console.log(n * 2) yang ada di dalam fungsi cetak. Baris kedua (undefined) tercetak dari console.log 
+      di luar fungsi karena fungsi cetak tidak memiliki nilai balik (return), sehingga secara otomatis mengembalikan nilai kosong (undefined).
+4. Pada Potongan C, kenapa `hasil` bernilai `"134"`? Jelaskan apa yang terjadi di tiap putaran dari `i = 1` sampai perulangan berhenti.
+    - Penjelasan per putaran i:
+        i = 1: Kondisi continue dan break tidak terpenuhi, hasil ditambah "1" (Menjadi "1").
+        i = 2: Memenuhi if (i === 2), menjalankan continue (melewati sisa kode di putaran ini).
+        i = 3: Kondisi tidak terpenuhi, hasil ditambah "3" (Menjadi "13").
+        i = 4: Kondisi tidak terpenuhi, hasil ditambah "4" (Menjadi "134").
+        i = 5: Memenuhi if (i === 5), menjalankan break (menghentikan perulangan secara total). Hasil akhirnya adalah "134".
+5. Pada Potongan C, kenapa `do...while` tetap menjalankan blok satu kali padahal kondisi `x < 3` bernilai `false` sejak awal?
+    - Karena pada struktur do...while, blok kode di dalam do dijalankan terlebih dahulu, baru kemudian kondisinya diperiksa di bagian akhir. 
+      Berbeda dengan while biasa yang mengecek kondisi di awal, do...while dijamin akan mengeksekusi isinya minimal satu kali.
+*/
