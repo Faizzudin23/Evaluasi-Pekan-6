@@ -160,7 +160,7 @@ function formatRupiah(angka) {
 function prosesDataTransaksi() {
     for (let i = 0; i < transaksiMentah.length; i++) {
         // Ambil dan bersihkan data utama
-        kodeTransaksi.push(transaksiMentah[i].kode.trim());
+kodeTransaksi.push(transaksiMentah[i].kode.trim());
         namaPelanggan.push(bersihkanSpasi(transaksiMentah[i].pelanggan));
         namaHari.push(bersihkanSpasi(transaksiMentah[i].hari));
         
@@ -260,4 +260,268 @@ PERTANYAAN
     - Function Expression (ubahKeAngka): Dipilih karena ingin memperlakukan fungsi sebagai nilai yang tersimpan rapi di dalam wadah variabel khusus.
     - Arrow Function: (Meskipun di kode sebelumnya kita memakai Declaration/Expression, contoh penulisannya seperti (teks) => teks.trim()). Dipilih jika kita ingin membuat fungsi satu baris yang sangat singkat tanpa perlu menulis kata function dan return
 */
+
+
+
+// BAGIAN 3 : MESIN KASIR
+const kasir = {
+    menu: menu,
+    saldoKas: 0,
+    riwayat: [],
+    pecahan: [50000, 20000, 10000, 5000, 2000, 1000],
+
+    // 1. Cari menu berdasarkan nama
+    cariMenu(namaNamaMenu) {
+        for (let itemMenu of this.menu) {
+            if (itemMenu.menu.toLowerCase() === namaNamaMenu.toLowerCase()) {
+                return itemMenu;
+            }
+        }
+        return null;
+    },
+
+    // 2. Hitung subtotal dan validasi item pesanan
+    hitungSubtotal(pesanan) {
+        let subtotal = 0;
+        let itemValid = [];
+        let itemTidakValid = [];
+
+        for (let pesananItem of pesanan) {
+            let ditemukan = this.cariMenu(pesananItem.menu);
+
+            if (!ditemukan) {
+                itemTidakValid.push({ menu: pesananItem.menu, alasan: "Menu tidak ditemukan" });
+            } else if (pesananItem.jumlah <= 0) {
+                itemTidakValid.push({ menu: pesananItem.menu, alasan: "Jumlah pesanan 0 atau kurang" });
+            } else if (ditemukan.stok < pesananItem.jumlah) {
+                itemTidakValid.push({ menu: pesananItem.menu, alasan: "Stok tidak cukup" });
+            } else {
+                let hargaItem = ditemukan.harga * pesananItem.jumlah;
+                subtotal += hargaItem;
+                itemValid.push({
+                    menu: ditemukan.menu,
+                    jumlah: pesananItem.jumlah,
+                    harga: hargaItem
+                });
+            }
+        }
+
+        return { subtotal, itemValid, itemTidakValid };
+    },
+
+    // 3. Hitung promo hari menggunakan switch
+    hitungPromoHari(hari) {
+        let hariBersih = hari ? hari.trim().toLowerCase() : "";
+        switch (hariBersih) {
+            case "jumat":
+                return 3000;
+            case "sabtu":
+            case "minggu":
+                return 5000;
+            default:
+                return 0;
+        }
+    },
+
+    // 4. Hitung diskon bertingkat dengan Math.max
+    hitungDiskon(subtotal, persenVoucher) {
+        let persenSubtotal = 0;
+        if (subtotal >= 100000) {
+            persenSubtotal = 15;
+        } else if (subtotal >= 50000) {
+            persenSubtotal = 10;
+        } else if (subtotal >= 25000) {
+            persenSubtotal = 5;
+        } else {
+            persenSubtotal = 0;
+        }
+
+        let persenFinal = Math.max(persenSubtotal, persenVoucher);
+        let besarDiskon = (subtotal * persenFinal) / 100;
+        return Math.round(besarDiskon);
+    },
+
+    // 5. Hitung pajak
+    hitungPajak(nilai, tarif = 0.11) {
+        return Math.round(nilai * tarif);
+    },
+
+    // 6. Hitung pecahan kembalian
+    hitungKembalianPecahan(kembalian) {
+        if (kembalian < 0) return null;
+
+        let sisa = kembalian;
+        let hasilPecahan = {};
+
+        for (let lembar of this.pecahan) {
+            if (sisa >= lembar) {
+                let jumlahLembar = Math.floor(sisa / lembar);
+                hasilPecahan[lembar] = jumlahLembar;
+                sisa = sisa % lembar;
+            }
+        }
+
+        hasilPecahan.sisa = sisa;
+        return hasilPecahan;
+    },
+
+    // 7. Proses transaksi tunggal
+    prosesTransaksi(trx) {
+        // Validasi Falsy/Truthy
+        if (!trx.pelanggan || trx.pelanggan.trim() === "") {
+            let hasilDitolak = { kode: trx.kode, pelanggan: trx.pelanggan, status: "DITOLAK", alasan: "Nama pelanggan kosong" };
+            this.riwayat.push(hasilDitolak);
+            return hasilDitolak;
+        }
+
+        if (!trx.pesanan || trx.pesanan.length === 0) {
+            let hasilDitolak = { kode: trx.kode, pelanggan: trx.pelanggan, status: "DITOLAK", alasan: "Pesanan kosong" };
+            this.riwayat.push(hasilDitolak);
+            return hasilDitolak;
+        }
+
+        let hasilSubtotalObj = this.hitungSubtotal(trx.pesanan);
+        if (hasilSubtotalObj.itemValid.length === 0) {
+            let hasilDitolak = { kode: trx.kode, pelanggan: trx.pelanggan, status: "DITOLAK", alasan: "Tidak ada item valid" };
+            this.riwayat.push(hasilDitolak);
+            return hasilDitolak;
+        }
+
+        // Lolos validasi
+        let subtotal = hasilSubtotalObj.subtotal;
+        let itemValid = hasilSubtotalObj.itemValid;
+        let itemTidakValid = hasilSubtotalObj.itemTidakValid;
+
+        let promoHari = this.hitungPromoHari(trx.hari);
+        let diskon = this.hitungDiskon(subtotal, trx.persenVoucher);
+
+        let nilaiSetelahPotongan = subtotal - diskon - promoHari;
+        if (nilaiSetelahPotongan < 0) {
+            nilaiSetelahPotongan = 0;
+        }
+
+        let pajak = this.hitungPajak(nilaiSetelahPotongan);
+        let total = nilaiSetelahPotongan + pajak;
+        let kembalian = trx.uangBayar - total;
+
+        let status = kembalian >= 0 ? "LUNAS" : "KURANG";
+        let pecahanKembalian = null;
+
+        if (status === "LUNAS") {
+            // Kurangi stok menu
+            for (let item of itemValid) {
+                let menuAsli = this.cariMenu(item.menu);
+                if (menuAsli) {
+                    menuAsli.stok -= item.jumlah;
+                }
+            }
+            // Tambah saldo kas
+            this.saldoKas += total;
+            // Hitung kembalian pecahan
+            pecahanKembalian = this.hitungKembalianPecahan(kembalian);
+        }
+
+        let hasilAkhir = {
+            kode: trx.kode,
+            pelanggan: trx.pelanggan,
+            status: status,
+            subtotal: subtotal,
+            promoHari: promoHari,
+            diskon: diskon,
+            pajak: pajak,
+            total: total,
+            uangBayar: trx.uangBayar,
+            kembalian: kembalian,
+            pecahanKembalian: pecahanKembalian,
+            itemValid: itemValid,
+            itemTidakValid: itemTidakValid
+        };
+
+        this.riwayat.push(hasilAkhir);
+        return hasilAkhir;
+    },
+
+    // 8. Cetak struk rapi
+    cetakStruk(hasil) {
+        console.log("========================================");
+        console.log(`STRUK TRANSAKSI: ${hasil.kode}`);
+        console.log("========================================");
+        console.log(`Pelanggan : ${hasil.pelanggan}`);
+        console.log(`Status    : ${hasil.status}`);
+
+        if (hasil.status === "DITOLAK") {
+            console.log(`Alasan    : ${hasil.alasan}`);
+            console.log("========================================\n");
+            return;
+        }
+
+        console.log("\n--- Item Valid ---");
+        for (let i = 0; i < hasil.itemValid.length; i++) {
+            let item = hasil.itemValid[i];
+            console.log(`${i + 1}. ${item.menu} (${item.jumlah}x) - ${formatRupiah(item.harga)}`);
+        }
+
+        if (hasil.itemTidakValid.length > 0) {
+            console.log("\n--- Item Tidak Valid ---");
+            for (let invalid of hasil.itemTidakValid) {
+                console.log(`- ${invalid.menu}: ${invalid.alasan}`);
+            }
+        }
+
+        console.log("\n----------------------------------------");
+        console.log(`Subtotal     : ${formatRupiah(hasil.subtotal)}`);
+        console.log(`Promo Hari   : -${formatRupiah(hasil.promoHari)}`);
+        console.log(`Diskon       : -${formatRupiah(hasil.diskon)}`);
+        console.log(`Pajak (11%)  : +${formatRupiah(hasil.pajak)}`);
+        console.log(`Total        : ${formatRupiah(hasil.total)}`);
+        console.log(`Uang Bayar   : ${formatRupiah(hasil.uangBayar)}`);
+        console.log(`Kembalian    : ${formatRupiah(hasil.kembalian)}`);
+
+        if (hasil.pecahanKembalian) {
+            console.log("Rincian Pecahan Kembalian:");
+            console.log(hasil.pecahanKembalian);
+        }
+        console.log("========================================\n");
+    }
+};
+
+// ==========================================
+// SIMULASI MENJALANKAN TRANSAKSI & TARGET KAS
+// ==========================================
+
+// Simulasi 1: Target Kas Sangat Besar (Semua diproses)
+console.log("=== PERCOBAAN 1: TARGET KAS BESAR ===");
+let TARGET_KAS = 10000000; 
+
+for (let i = 0; i < transaksiBersih.length; i++) {
+    let hasilProses = kasir.prosesTransaksi(transaksiBersih[i]);
+    kasir.cetakStruk(hasilProses);
+
+    if (kasir.saldoKas >= TARGET_KAS) {
+        console.log("Target kas tercapai");
+        break;
+    }
+}
+
+// Reset saldo kas dan riwayat untuk percobaan kedua
+kasir.saldoKas = 0;
+kasir.riwayat = [];
+
+// Simulasi 2: Target Kas Kecil (Berhenti di tengah)
+// (Catatan: Transaksi terakhir yang diproses pada percobaan kedua adalah transaksi ke-2 / trx-002)
+console.log("\n=== PERCOBAAN 2: TARGET KAS KECIL ===");
+TARGET_KAS = 100000; 
+
+for (let i = 0; i < transaksiBersih.length; i++) {
+    let hasilProses = kasir.prosesTransaksi(transaksiBersih[i]);
+    kasir.cetakStruk(hasilProses);
+
+    if (kasir.saldoKas >= TARGET_KAS) {
+        console.log("Target kas tercapai");
+        break;
+    }
+}
+
+// Kembalikan TARGET_KAS ke nilai besar
+TARGET_KAS = 10000000;
 
