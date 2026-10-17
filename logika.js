@@ -137,3 +137,31 @@ console.log(`17 → ${cekBilanganPrima(17)}`);
 console.log(`15 → ${cekBilanganPrima(15)}`);
 console.log(`1 → ${cekBilanganPrima(1)}`);
 console.log(`0 → ${cekBilanganPrima(0)}`);
+
+
+/*
+PERTANYAAN
+1. Pilih satu function. Jelaskan langkah demi langkah apa yang terjadi saat dipanggil dengan salah satu contoh (nilai variabel di tiap putaran perulangan).
+    - Contoh pada hitungFaktorial(3):
+        Nilai awal: n = 3, hasil = 1.
+        Putaran 1 (i = 1): hasil dikalikan 1 (1 * 1), nilai hasil menjadi 1.
+        Putaran 2 (i = 2): hasil dikalikan 2 (1 * 2), nilai hasil menjadi 2.
+        Putaran 3 (i = 3): hasil dikalikan 3 (2 * 3), nilai hasil menjadi 6.
+        Perulangan selesai, mengembalikan angka 6.
+2. Pada `hapusDuplikat`, kenapa array asli tidak berubah? Kenapa kamu memakai method yang kamu pilih untuk memeriksa elemen ganda?
+    - Kenapa array asli tidak berubah? Karena kita hanya membaca isi array asli, lalu mengumpulkan elemen uniknya ke dalam array baru (hasilBaru) tanpa 
+      pernah memodifikasi atau menghapus elemen dari array aslinya.
+    - Kenapa memakai perulangan untuk cek ganda? Kita memakai perulangan bersarang untuk mencocokkan setiap elemen satu per satu ke array baru, agar 
+      konsisten menggunakan logika manual tanpa bergantung pada fungsi bawaan modern seperti Set.
+3. Pada `cekBilanganPrima`, apakah kamu memakai `break`? Apa yang terjadi jika baris itu dihapus: hasilnya salah atau hanya lebih lambat? Jelaskan.
+    - Kita menggunakan penghentian langsung (return false di dalam kondisi) yang berfungsi seperti break.
+    - Jika penghentian dini itu dihapus (sehingga pengecekan terus berlanjut sampai akhir loop), hasilnya akan salah karena nilai kebenaran prima bisa 
+      tertimpa atau salah dikembalikan, selain itu juga membuat prosesnya jauh lebih lambat karena tidak berhenti begitu faktor pembaginya ditemukan.
+4. Kenapa `cariTerbesar([])` mengembalikan `null`, bukan `0`?
+    - Karena array kosong tidak memiliki angka sama sekali. Jika mengembalikan 0, itu bisa disalahartikan bahwa angka 0 adalah nilai terbesar yang ditemukan 
+      di dalam array tersebut (misalnya pada array berisi angka negatif). null digunakan untuk menandakan bahwa data tidak ada atau kosong.
+5. Tunjuk dua function yang memakai jenis perulangan berbeda (`for`, `for...of`, atau `while`). Kenapa kamu memilih jenis itu untuk masing-masing?
+    - hitungFaktorial memakai for: Dipilih karena kita tahu persis batas awal (1) dan batas akhir (n), sehingga perulangan berbasis angka urut sangat cocok.
+    - cekPalindrom memakai while: Dipilih karena kita menggerakkan dua titik penunjuk (pointer dari depan dan belakang) secara bersamaan ke tengah berdasarkan 
+      kondisi tertentu, di mana while lebih fleksibel untuk mengatur berhentinya proses.
+*/
