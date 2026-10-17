@@ -546,3 +546,198 @@ PERTANYAAN :
     - Justru bisa dan lebih efisien! Pada kode tersebut kita menggunakan operator / (lewat Math.floor(sisa / lembar)) dan % (sisa % lembar) di dalam 
       for...of untuk langsung menghitung jumlah lembar pecahan dan sisa uangnya sekaligus dalam satu langkah tanpa perlu memakai while.
 */
+
+
+// BAGIAN 4 : LAPORAN HARIAN
+// ==========================================
+// PEMBUATAN OBJEK LAPORAN DARI kasir.riwayat
+// ==========================================
+
+let laporan = {
+    jumlahTransaksi: kasir.riwayat.length,
+    jumlahLunas: 0,
+    jumlahKurang: 0,
+    jumlahDitolak: 0,
+    pendapatan: 0,
+    rataRata: 0,
+    transaksiTerbesar: null,
+    penjualanPerMenu: {},
+    menuTerlaris: "",
+    daftarDitolak: [],
+    kodeLunas: [],
+    ringkasanKode: "",
+    menuStokMenipis: []
+};
+
+let totalLunasUntukRataRata = 0;
+let maxTotal = -1;
+let maxTerjual = -1;
+
+// Perulangan untuk menganalisis data riwayat
+for (let i = 0; i < kasir.riwayat.length; i++) {
+    let trx = kasir.riwayat[i];
+
+    // 1. Hitung berdasarkan status
+    if (trx.status === "LUNAS") {
+        laporan.jumlahLunas++;
+        laporan.pendapatan += trx.total;
+        totalLunasUntukRataRata++;
+
+        // Simpan kode lunas dengan push
+        laporan.kodeLunas.push(trx.kode);
+
+        // Cari transaksi dengan total terbesar
+        if (trx.total > maxTotal) {
+            maxTotal = trx.total;
+            laporan.transaksiTerbesar = trx;
+        }
+
+        // Akumulasi penjualan per menu dari itemValid
+        for (let j = 0; j < trx.itemValid.length; j++) {
+            let item = trx.itemValid[j];
+            let namaMenu = item.menu;
+            let jumlahBeli = item.jumlah;
+
+            // Pemeriksaan memakai operator 'in' dan bracket notation
+            if (namaMenu in laporan.penjualanPerMenu) {
+                laporan.penjualanPerMenu[namaMenu] += jumlahBeli;
+            } else {
+                laporan.penjualanPerMenu[namaMenu] = jumlahBeli;
+            }
+        }
+
+    } else if (trx.status === "KURANG") {
+        laporan.jumlahKurang++;
+    } else if (trx.status === "DITOLAK") {
+        laporan.jumlahDitolak++;
+        // Masukkan ke daftar ditolak
+        laporan.daftarDitolak.push({
+            kode: trx.kode,
+            alasan: trx.alasan
+        });
+    }
+}
+
+// 2. Hitung rata-rata pendapatan per transaksi lunas (dibulatkan)
+if (laporan.jumlahLunas > 0) {
+    laporan.rataRata = Math.round(laporan.pendapatan / laporan.jumlahLunas);
+}
+
+// 3. Buat ringkasanKode menggunakan perulangan dan +=
+for (let i = 0; i < laporan.kodeLunas.length; i++) {
+    laporan.ringkasanKode += laporan.kodeLunas[i];
+    if (i < laporan.kodeLunas.length - 1) {
+        laporan.ringkasanKode += ", ";
+    }
+}
+
+// 4. Cari menuTerlaris dari object penjualanPerMenu
+for (let namaMenu in laporan.penjualanPerMenu) {
+    let jumlahTerjual = laporan.penjualanPerMenu[namaMenu];
+    if (jumlahTerjual > maxTerjual) {
+        maxTerjual = jumlahTerjual;
+        laporan.menuTerlaris = namaMenu;
+    }
+}
+
+// 5. Cek menu stok menipis (kurang dari 3) di kasir.menu
+for (let i = 0; i < kasir.menu.length; i++) {
+    let m = kasir.menu[i];
+    if (m.stok < 3) {
+        laporan.menuStokMenipis.push(m.menu);
+    }
+}
+
+// Cetak hasil laporan ke console
+console.log("========================================");
+console.log("LAPORAN KEUANGAN & OPERASIONAL KASIR");
+console.log("========================================");
+console.log(laporan);
+
+// Memastikan objek kedai memiliki nama
+const kedai = {
+    nama: "kedai senja"
+};
+
+// ==========================================
+// PENCETAKAN LAPORAN HARIAN KEDAI SENJA
+// ==========================================
+
+console.log("========================================");
+// 1. Judul dicetak dari kedai.nama dengan huruf kapital semua memakai method toUpperCase()
+console.log(`         ${kedai.nama.toUpperCase()}         `);
+console.log("========================================");
+
+console.log(`Jumlah Transaksi     : ${laporan.jumlahTransaksi}`);
+console.log(`Transaksi Lunas      : ${laporan.jumlahLunas}`);
+console.log(`Transaksi Kurang     : ${laporan.jumlahKurang}`);
+console.log(`Transaksi Ditolak    : ${laporan.jumlahDitolak}`);
+console.log(`Pendapatan           : ${formatRupiah(laporan.pendapatan)}`);
+console.log(`Rata-rata Pendapatan : ${formatRupiah(laporan.rataRata)}`);
+console.log(`Menu Terlaris        : ${laporan.menuTerlaris || "Belum ada"}`);
+console.log(`Ringkasan Kode Lunas : ${laporan.ringkasanKode || "-"}`);
+
+// 2. Isi penjualanPerMenu dicetak memakai for...in
+console.log("\n--- Penjualan Per Menu (for...in) ---");
+let adaPenjualan = false;
+for (let menu in laporan.penjualanPerMenu) {
+    adaPenjualan = true;
+    console.log(`- ${menu}: ${laporan.penjualanPerMenu[menu]} porsi`);
+}
+if (!adaPenjualan) {
+    console.log("- Belum ada menu terjual");
+}
+
+// 3. Hasil Object.keys dan Object.values dari penjualanPerMenu
+console.log("\n--- Object.keys & Object.values ---");
+console.log("Daftar Menu (Keys)   :", Object.keys(laporan.penjualanPerMenu));
+console.log("Jumlah Terjual (Vals):", Object.values(laporan.penjualanPerMenu));
+
+// 4. Periksa apakah ringkasanKode.split(", ").length sama dengan jumlahLunas
+console.log("\n--- Validasi Ringkasan Kode ---");
+let jumlahPecahKode = laporan.ringkasanKode ? laporan.ringkasanKode.split(", ").length : 0;
+let apakahSama = jumlahPecahKode === laporan.jumlahLunas;
+console.log(`Panjang split kode sama dengan jumlahLunas? ${apakahSama} (${jumlahPecahKode} vs ${laporan.jumlahLunas})`);
+
+// 5. Demo array method pada kodeLunas
+console.log("\n--- Demo Array Methods pada kodeLunas ---");
+if (laporan.kodeLunas.length > 0) {
+    let contohKodeCari = laporan.kodeLunas[0];
+    
+    // includes
+    console.log(`Apakah kode "${contohKodeCari}" ada di kodeLunas?`, laporan.kodeLunas.includes(contohKodeCari));
+    
+    // indexOf
+    console.log(`Posisi (index) kode "${contohKodeCari}" adalah:`, laporan.kodeLunas.indexOf(contohKodeCari));
+    
+    // slice (mengambil 2 kode pertama)
+    console.log("2 Kode pertama (slice):", laporan.kodeLunas.slice(0, 2));
+    
+    // splice pada salinan array (membuat salinan dengan slice)
+    let salinanKode = laporan.kodeLunas.slice();
+    let elemenTerhapus = salinanKode.splice(0, 1);
+    console.log("Elemen yang dihapus dari salinan (splice):", elemenTerhapus);
+    console.log("Isi salinan setelah splice:", salinanKode);
+    console.log("Apakah kodeLunas yang asli tetap tidak berubah?", laporan.kodeLunas.length !== salinanKode.length ? "Ya, asli tetap aman!" : "Tidak");
+} else {
+    console.log("Tidak ada data kode lunas untuk didemonstrasikan.");
+}
+
+// Menu Stok Menipis
+console.log("\n--- Menu Stok Menipis (< 3) ---");
+if (laporan.menuStokMenipis.length > 0) {
+    console.log(laporan.menuStokMenipis);
+} else {
+    console.log("Tidak ada menu yang menipis.");
+}
+
+// Daftar Ditolak
+console.log("\n--- Daftar Transaksi Ditolak ---");
+if (laporan.daftarDitolak.length > 0) {
+    for (let item of laporan.daftarDitolak) {
+        console.log(`- Kode: ${item.kode} | Alasan: ${item.alasan}`);
+    }
+} else {
+    console.log("Tidak ada transaksi yang ditolak.");
+}
+console.log("========================================");
