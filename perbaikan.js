@@ -108,3 +108,97 @@ console.log(pelanggan.bayar(30000));
 for (let kunci in harga) {
     console.log(kunci + ": " + harga[kunci]);
 }
+
+/*
+Catatan Bug
+
+    Bug 1: Pemanggilan saldo tanpa this di dalam method pelanggan
+
+        Jenisnya: Menghentikan program dengan error (ReferenceError: saldo is not defined).
+
+        Penyebabnya: JavaScript mencoba mencari variabel global bernama saldo di luar objek, bukan merujuk ke properti di dalam objek pelanggan.
+
+    Bug 2: Batas perulangan i <= keranjang.length pada subtotal
+
+        Jenisnya: Tidak error tapi hasil salah (NaN / salah hitung).
+
+        Penyebabnya: Panjang array adalah 4 (index 0 sampai 3), namun perulangan mencakup index 4 yang bernilai undefined, sehingga menghasilkan operasi matematika NaN.
+
+    Bug 3: Urutan kondisi if...else if pada diskon
+
+        Jenisnya: Tidak error tapi hasil salah (diskon salah dihitung).
+
+        Penyebabnya: Kondisi subtotal >= 25000 diletakkan paling atas. Karena subtotal bernilai 50000 memenuhi syarat >= 25000, kode langsung berhenti di situ dan memberikan diskon 5% alih-alih 10%.
+
+    Bug 4: Hilangnya break pada switch promo hari
+
+        Jenisnya: Tidak error tapi hasil salah (nilai promo tertimpa).
+
+        Penyebabnya: Terjadi fall-through, di mana setelah nilai promo diset 3000 pada case "jumat", kodenya terus turun ke bawah tanpa berhenti dan menimpa nilainya menjadi 5000.
+
+    Bug 5: Kurangnya tanda kurung pada perhitungan pajak
+
+        Jenisnya: Tidak error tapi hasil salah.
+
+        Penyebabnya: Berdasarkan urutan operasi matematika, perkalian (promo * TARIF_PAJAK) dikerjakan lebih dulu sebelum pengurangan, membuat hasil perhitungan pajak meleset jauh.
+
+    Bug 6: parseInt gagal membaca string berformat "100.000"
+
+        Jenisnya: Tidak error tapi hasil salah (terbaca 100 saja).
+
+        Penyebabnya: parseInt berhenti membaca angka saat menemui tanda titik (.) pemisah ribuan.
+
+    Bug 7: Penggunaan operator penugasan = di dalam kondisi if
+
+        Jenisnya: Tidak error tapi hasil salah (status selalu "Lunas").
+
+        Penyebabnya: Tanda = adalah operator penugasan nilai, bukan pembandingan. Ini membuat variabel total dimasukkan ke uangBayar, dan hasilnya selalu bernilai truthy.
+
+    Bug 8: Argumen slice(0, 1) yang keliru pada namaRapi
+
+        Jenisnya: Tidak error tapi hasil salah (nama terpotong hanya 1 huruf).
+
+        Penyebabnya: Pemanggilan slice(0) di bagian belakang mengembalikan seluruh teks asli tanpa memotong sisa huruf berikutnya dengan benar.
+
+    Bug 9: Penggunaan slice dan unshift yang salah pada keranjang
+
+        Jenisnya: Tidak error tapi hasil salah (elemen gagal dihapus/ditambah sesuai instruksi).
+
+        Penyebabnya: slice() tidak menghapus elemen asli melainkan hanya menyalinnya (harus memakai splice), dan unshift menambahkan elemen di awal, bukan di akhir (harus memakai push).
+
+    Bug 10: Penjumlahan string pada jumlahMemberBaru
+
+        Jenisnya: Tidak error tapi hasil salah (menghasilkan string "51").
+
+        Penyebabnya: Variabel jumlahMember bertipe string, sehingga tanda + dibaca sebagai penggabungan teks (concatenation), bukan penjumlahan angka.
+
+    Bug 11: Penggunaan .toFixed(2) yang menghasilkan tipe data string
+
+        Jenisnya: Tidak error tapi hasil salah (menghasilkan teks "11655.0010").
+
+        Penyebabnya: .toFixed() mengembalikan teks, sehingga ketika ditambah 10, JavaScript menggabungkannya sebagai string, bukan penjumlahan matematika.
+
+    Bug 12: Tidak adanya return pada function formatRupiah
+
+        Jenisnya: Tidak error tapi hasil salah (mengembalikan undefined).
+
+        Penyebabnya: Tanpa kata kunci return, sebuah fungsi di JavaScript tidak mengembalikan nilai apa pun saat dipanggil.
+
+    Bug 13: Penggunaan for...of pada Object harga
+
+        Jenisnya: Menghentikan program dengan error (TypeError: harga is not iterable).
+
+        Penyebabnya: for...of hanya bisa digunakan untuk struktur data bertipe Array atau Iterable, sedangkan harga adalah sebuah Object (harus menggunakan for...in).
+*/
+
+
+/*
+PERTANYAAN
+1. Kenapa `if (uangBayar = total)` tidak menimbulkan error? Apa yang terjadi pada nilai `uangBayar` setelah baris itu dijalankan?
+    - Karena tanda = adalah operator penugasan (assignment), bukan perbandingan. JavaScript mengizinkan penugasan nilai di dalam tanda kurung kondisi if. Akibatnya, 
+      nilai total dimasukkan ke dalam variabel uangBayar, dan setelah baris itu dijalankan, nilai uangBayar berubah menjadi sama persis dengan total (dan karena bernilai 
+      angka, dianggap truthy sehingga blok kodenya selalu tereksekusi tanpa error).
+2. Kenapa `parseInt("100.000")` menghasilkan `100`, bukan `100000`?
+    - Karena fungsi parseInt membaca teks dari kiri ke kanan dan akan berhenti otomatis begitu menemukan karakter yang bukan angka, yaitu tanda titik (.) yang dibaca 
+      oleh JavaScript sebagai pemisah desimal, bukan pemisah ribuan.
+*/
