@@ -525,3 +525,24 @@ for (let i = 0; i < transaksiBersih.length; i++) {
 // Kembalikan TARGET_KAS ke nilai besar
 TARGET_KAS = 10000000;
 
+/*
+PERTANYAAN :
+1. Kenapa di dalam method kamu menulis `this.menu`, bukan `menu`? Apa yang dirujuk oleh `this`?
+    - this merujuk pada objek kasir itu sendiri. Penulisan this.menu digunakan agar method tahu bahwa data menu yang diambil berasal dari 
+      dalam objek kasir tersebut, bukan variabel bebas di luar objek.
+2. Kenapa `hitungPromoHari` lebih cocok memakai `switch`? Di mana kamu sengaja tidak menulis `break`, dan kenapa hasilnya tetap benar?
+    - switch lebih cocok karena mengecek satu variabel (hari) terhadap banyak pilihan nilai. Kita sengaja tidak menulis break di bawah case 
+      "sabtu": agar alurnya langsung turun ke case "minggu" (karena keduanya mendapat potongan 5000 yang sama), sehingga kodenya lebih ringkas.
+3. Kenapa `!trx.pesanan.length` bisa dipakai untuk memeriksa pesanan kosong? Sebutkan 3 nilai yang dianggap Falsy.
+    - Array kosong memiliki properti .length bernilai 0. Angka 0 termasuk nilai falsy, sehingga jika diberi tanda seru (!), hasilnya menjadi true 
+      (artinya array tersebut benar-benar kosong). Tiga contoh nilai falsy adalah 0, "" (string kosong), dan null.
+4. Tunjuk satu tempat di kodemu yang memakai `break` dan satu yang memakai `continue`. Apa beda keduanya?
+    - break digunakan saat target kas tercapai untuk menghentikan seluruh perulangan (loop) secara paksa. Perbedaannya: break menghentikan total 
+      jalannya perulangan, sedangkan continue hanya melewati satu putaran/iterasi saat itu saja lalu lanjut ke putaran berikutnya.
+5. Kenapa `hitungSubtotal` mengembalikan object berisi `subtotal`, `itemValid`, dan `itemTidakValid`, bukan hanya angka subtotal?
+    - Karena selain angka total harga (subtotal), sistem kasir juga memerlukan laporan detail berupa daftar barang apa saja yang berhasil dibeli 
+      (itemValid) untuk mengurangi stok, serta daftar barang yang gagal beserta alasannya (itemTidakValid).
+6. Kenapa `hitungKembalianPecahan` memakai `while` di dalam `for...of`? Apakah bisa diganti dengan `%` dan `/`? Jelaskan.
+    - Justru bisa dan lebih efisien! Pada kode tersebut kita menggunakan operator / (lewat Math.floor(sisa / lembar)) dan % (sisa % lembar) di dalam 
+      for...of untuk langsung menghitung jumlah lembar pecahan dan sisa uangnya sekaligus dalam satu langkah tanpa perlu memakai while.
+*/
